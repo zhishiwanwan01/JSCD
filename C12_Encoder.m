@@ -1,4 +1,4 @@
-function [ bitSequence ] = c12_Encoder( symbolFrame )
+function [ bitSequence ] = C12_Encoder( symbolFrame )
 %C12_ENCODER encodes input symbolFrame into bit sequence which contains 0
 %and 1.
 %   [ bitSequence ] = c12_Encoder( symbolFrame ) encoding the symbol
