@@ -1,0 +1,7 @@
+function [ LLR ] = BCJRDecoder( seqAWGN, EbN0 )
+%UNTITLED3 Summary of this function goes here
+%   Detailed explanation goes here
+
+
+end
+
