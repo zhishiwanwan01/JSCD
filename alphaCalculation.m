@@ -1,11 +1,8 @@
 function [ alpha ] = alphaCalculation( gama )
 %ALPHACALCULATION calcultes the value of alpha based on the value of gama
 %and decoding trellis.
-<<<<<<< HEAD
 %   [ alpha ] = alphaCalculation( gama ) calculates alpha by the equation: 
-=======
 %   alpha is calculated by the equation: 
->>>>>>> origin/master
 %   a_k(s) = sum(a_k-1(s')* gama_k(s', s))
 
 % Initialization
@@ -13,23 +10,14 @@ alpha = zeros(length(gama)+1, 6);
 alpha(1,1) = 1;
 
 % Calculate alpha
-<<<<<<< HEAD
 for k = 2 : size(alpha, 1)
-=======
-for k = 2 : length(alpha)
->>>>>>> origin/master
     gama_0 = gama(1, k-1);
     gama_1 = gama(2, k-1);
     
     alpha(k, 1) = alpha(k-1, 2:6) * ...
         [gama_0; gama_1; gama_0; gama_1; gama_0];   % alpha_0
     alpha(k, 2:6) = [alpha(k-1, 1), alpha(k-1, 1), alpha(k-1, 2:4)] .* ...
-<<<<<<< HEAD
         [gama_0, gama_1, gama_1, gama_0, gama_1];   % alpha_1 -- alpha_5
-=======
-        [gama_0; gama_1; gama_1; gama_0; gama_1];   % alpha_1 -- alpha_5
->>>>>>> origin/master
-    
     % Delete some value in alpha due to the end of the trellis
     if k >= length(alpha)-2
         alpha(end-2, 5:6) = 0;
@@ -40,8 +28,4 @@ for k = 2 : length(alpha)
     % Normalization
     alpha(k, :) = alpha(k, :) ./ sum(alpha(k, :)); 
 end
-<<<<<<< HEAD
-=======
-
->>>>>>> origin/master
 end
