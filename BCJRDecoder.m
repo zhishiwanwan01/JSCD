@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 function [ LLR ] = BCJRDecoder( seqAWGN, EbN0, channelLLR )
 %BCJRDecoder generates the log-likelyhood ratio(LLR) of each bit for input
 %sequence based on C12 code table and MAP algorithm
@@ -10,5 +11,12 @@ EsN0 = EbN0;
 [ alpha ] = alphaCalculation( gama );
 [ belta ] = beltaCalculation( gama );
 [ LLR ] = LLRCalculation( alpha, belta, gama );
+=======
+function [ LLR ] = BCJRDecoder( seqAWGN, EbN0 )
+%UNTITLED3 Summary of this function goes here
+%   Detailed explanation goes here
+
+
+>>>>>>> origin/master
 end
 

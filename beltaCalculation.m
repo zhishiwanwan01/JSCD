@@ -10,6 +10,7 @@ belta(end, 1) = 1;
 
 % Calculate belta
 for k = length(belta)-1 : -1 : 1
+<<<<<<< HEAD
     gama_0 = gama(1, k);
     gama_1 = gama(2, k);
 
@@ -17,6 +18,14 @@ for k = length(belta)-1 : -1 : 1
         belta(k+1, 1), belta(k+1, 1), belta(k+1, 1)] .* ...
             [gama_0, gama_0, gama_1, gama_0, gama_1, gama_0];
     belta(k, :) = belta(k, :) + [belta(k+1, 3:6), 0, 0] .* ...
+=======
+    gama_0 = gama(1, k-1);
+    gama_1 = gama(2, k-1);
+    
+    belta(k, :) = [belta(k+1, 2), repmat(belta(k+1, 1), 1, 5)] .* ...
+        [gama_0, gama_0, gama_1, gama_0, gama_1, gama_0];
+    belta(k, :) = belta(k, :) + [belta(kb+1, 3:6), 0, 0] .* ...
+>>>>>>> origin/master
         [gama_1, gama_1, gama_0, gama_1, 0, 0];
     
     % Delete some value in belta due to the start of the trellis

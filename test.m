@@ -10,6 +10,7 @@ numberOfCharacters = 100;
 frameLength = 10;
 [ source ] = randomSource( numberOfCharacters, frameLength );
 symbolFrame = source(1, :);
+<<<<<<< HEAD
 %%
 % bitSeq = [1 1 0 0 0 1 1 0 1 0];
 conSeq = convolutionalEncoder(symbolFrame);
@@ -41,3 +42,6 @@ newGama2 = [gama_11, gama_00, gama_01, gama_10...
 % [ bitSequence ] = C12Encoder( symbolFrame );
 % [ symbolSeq ] = seqEstimation( bitSequence );
 % xor(symbolFrame,symbolSeq )
+=======
+[ bitSequence ] = C12_Encoder( symbolFrame );
+>>>>>>> origin/master
