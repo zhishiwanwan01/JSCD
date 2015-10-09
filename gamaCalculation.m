@@ -7,9 +7,16 @@ function [ gama ] = gamaCalculation( seqAWGN, EsN0, LLR )
 
 % Initialization
 gama = zeros(2, length(seqAWGN));
-prioriProbability = exp(abs(LLR)/2);
+% prioriProbability = exp(abs(LLR)/2);
+% prioriProbability = exp(LLR/2);
+% prioriProbability = exp(-LLR)./(1+exp(-LLR));
+
 % Calculation
-gama(1, :) = prioriProbability .* exp(0.5*4*EsN0*(-1).*seqAWGN);
-gama(2, :) = prioriProbability .* exp(0.5*4*EsN0.*seqAWGN);
+% original
+% gama(1, :) = exp(-1*LLR/2) .* exp(0.5*4*EsN0*(-1).*seqAWGN);
+% gama(2, :) = exp(LLR/2) .* exp(0.5*4*EsN0.*seqAWGN);
+% 
+gama(1, :) = exp(LLR/2) .* exp(0.5*4*EsN0*(-1).*seqAWGN);
+gama(2, :) = exp(-1*LLR/2) .* exp(0.5*4*EsN0.*seqAWGN);
 end
 

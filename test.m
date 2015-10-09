@@ -1,43 +1,65 @@
 %%
-clc;clear all;
+clc;clear all;close all;
 %%
-EbN0dB = 3.5;
+EbN0dB = 3;
 EbN0P = 10.^ (EbN0dB./10);
 EbN0 = EbN0P;
 codeRate = 2.14/2.46;  
+codeRateForAWGN = 8/14*2.14/2.46;
 %%
-numberOfCharacters = 100;
-frameLength = 10;
+numberOfCharacters = 2000;
+frameLength = 2000;
 [ source ] = randomSource( numberOfCharacters, frameLength );
-symbolFrame = source(1, :);
 %%
-% bitSeq = [1 1 0 0 0 1 1 0 1 0];
-conSeq = convolutionalEncoder(symbolFrame);
-puncturedSeq = punctureBlock(conSeq);
-% inputSequence = puncturedSeq;
-[ seqAWGN ] = BPSKAndAddNoise( puncturedSeq, EbN0, codeRate );
-sourceLLR = zeros(1, frameLength);
-%%
-% [ channelLLR ] = channelAPPDecoder( seqAWGN , EbN0, sourceLLR );
-% inputSequence = seqAWGN;
-EsN0 = EbN0;
-[ gama ] = gamaForChannelDecoding( seqAWGN, EsN0, sourceLLR );
-gama_00 = gama(1, :)';
-gama_01 = gama(2, :)';
-gama_10 = gama(3, :)';
-gama_11 = gama(4, :)';
+bitSequence = C12Encoder( source(1, :) );
+allZeroSeq = zeros(1, length(bitSequence));
+% Interleaving
+interleaveIndex = randperm(length(bitSequence));
+interleavedSeq = bitSequence(interleaveIndex);
+% Convolutional Code
+[ convolutionalCodeSeq ] = convolutionalEncoder( interleavedSeq );
+% Puncturing
+[ puncturedCode ] = punctureBlock( convolutionalCodeSeq );
+[ seqAWGN ] = ...
+            BPSKAndAddNoise( puncturedCode, EbN0, codeRateForAWGN );
+sourceLLR = zeros( 1, length(bitSequence)+ 4 );
+[ channelLLR ] = ...
+                channelAPPDecoder( seqAWGN, EbN0, sourceLLR );
+newChannelLLR = channelLLR - sourceLLR;
+deInterleavedChannelLLR = channelLLR(1:end-4);
+            deInterleavedChannelLLR(interleaveIndex) = ...
+                deInterleavedChannelLLR;   
+[ tempSourceLLR ] = ...
+                    BCJRDecoder( allZeroSeq, ...
+                                        EbN0, deInterleavedChannelLLR );
+% Remove the channelLLR before sending the sourceLLR to
+% channel decoder
+newSourceLLR = tempSourceLLR - deInterleavedChannelLLR;
+% Interleaving
+interleavedSourceLLR = newSourceLLR(interleaveIndex);
+% Additional bits for channel decoding
+sourceLLR = ...
+    [interleavedSourceLLR, zeros(1,4)]; 
+%% test
+resChannel = (deInterleavedChannelLLR < 0);
+resSource = (tempSourceLLR < 0);
+channelError = sum(xor(resChannel, bitSequence))
+sourceError = sum(xor(resSource, bitSequence))
+diffChannel = find(resChannel ~= bitSequence);
+diffSource = find(resSource ~= bitSequence);
 
-newGama1 = [gama_00, gama_11, gama_10, gama_01...
-        gama_01, gama_10, gama_11, gama_00...
-        gama_01, gama_10, gama_11, gama_00...
-        gama_00, gama_11, gama_10, gama_01];
-newGama2 = [gama_11, gama_00, gama_01, gama_10...
-        gama_10, gama_01, gama_00, gama_11...
-        gama_10, gama_01, gama_00, gama_11...
-        gama_11, gama_00, gama_01, gama_10];
-[ alpha ] = alphaForChannelDecoding( newGama1, newGama2 );
-[ belta ] = beltaForChannelDecoding( newGama1, newGama2 );
-[ channelLLR ] = LLRForChannelDecoding( alpha, belta, newGama1, newGama2 );
-% [ bitSequence ] = C12Encoder( symbolFrame );
-% [ symbolSeq ] = seqEstimation( bitSequence );
-% xor(symbolFrame,symbolSeq )
+%% test 2
+resChannelTestLLR = 200*(resChannel*2 -1);
+[ sourceRes ] = ...
+                    BCJRDecoder( allZeroSeq, ...
+                                        EbN0, resChannelTestLLR );
+binSourceRes = (sourceRes > 0);
+sum(xor(binSourceRes, bitSequence))
+%% test 3
+symbolSeq = seqEstimation(resSource);
+EditDistance = symbolErrorRate(symbolSeq, source(1,:));
+
+%% test 5
+% resGama = log(gama(1,:)./gama(2,:));
+% ressGama = resGama>0;
+% diffGama = sum(xor(ressGama, bitSequence));

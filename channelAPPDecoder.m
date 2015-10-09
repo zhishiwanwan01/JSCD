@@ -2,7 +2,7 @@ function [ channelLLR ] = ...
     channelAPPDecoder( inputSequence, EbN0, sourceLLR )
 %CHANNELAPPDECODER generates the log-likelihood ratio of input sequence
 
-EsN0 = 2* EbN0;
+EsN0 = EbN0;
 [ gama ] = gamaForChannelDecoding( inputSequence, EsN0, sourceLLR );
 gama_00 = gama(1, :)';
 gama_01 = gama(2, :)';

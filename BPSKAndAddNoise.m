@@ -8,6 +8,8 @@ function [ seqAWGN ] = BPSKAndAddNoise( bitSequence, EbN0, codeRate )
 
 % BPSK
 seqBPSK = bitSequence * 2 - 1;
+% seqBPSK(bitSequence == 0) = 1;
+% seqBPSK(bitSequence == 1) = -1;
 
 % AWGN
 noiseSigma = sqrt(1./(2*codeRate*EbN0));

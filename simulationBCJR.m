@@ -15,7 +15,8 @@ for i = 1 : length(EbN0dB)
     EditDistance = zeros(1, size(source,1));
     EbN0 = EbN0P(i);
     
-    parfor k = 1 : size(source,1)
+%     parfor k = 1 : size(source,1)
+    for k = 1 : size(source,1)
         % Encode symbol sequence into bit sequence
         [ bitSequence ] = C12Encoder( source(k, :) );
         % Modulation and add Gaussian noise

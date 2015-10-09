@@ -18,6 +18,10 @@ resultMat = zeros(length(str1),length(str2));
 
 % Calculte the Levenshtein distance matrix
 EditDistanceMatrix = leven_dis2(str1 , str2, resultMat);
-EditDistance = EditDistanceMatrix(end, end);
+if(isempty(EditDistanceMatrix))
+    EditDistance = 0;
+else
+    EditDistance = EditDistanceMatrix(end, end);    
+end
 end
 

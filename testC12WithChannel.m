@@ -1,15 +1,15 @@
 %%
 clc; clear all; close all;
 %% Initialization
-EbN0dB = 3 : 0.5 : 3;   % EbN0 in dB
+EbN0dB = 0.5 : 0.5 : 3;   % EbN0 in dB
 EbN0P = 10.^ (EbN0dB./10);  % EbN0 in power
 codeRate = 2.14/2.46;   % Code rate of source encoding
 % Number of symbols to be transmitted
-charactersNum = [60000];
+charactersNum = [2000 4000 6000 6000 10000 10000];
 frameLength = 2000;  % Length of frame
 SER = zeros(1, length(EbN0dB));     % Symbol error ratio
-codeRateForAWGN = 8/14;
-iterationNum = 8;
+codeRateForAWGN = 8/14*2.14/2.46;
+iterationNum = 0;
 %%
 for i = 1 : length(EbN0dB)
     % Generate the random source
@@ -21,6 +21,7 @@ for i = 1 : length(EbN0dB)
     for j = 1 : size(source, 1)
         % Source encode for input symbols to bits
         [ bitSequence ] = C12Encoder( source(j, :) );
+        allZeroSeq = zeros(1, length(bitSequence));
         % Interleaving
         interleaveIndex = randperm(length(bitSequence));
         interleavedSeq = bitSequence(interleaveIndex);
@@ -31,8 +32,6 @@ for i = 1 : length(EbN0dB)
         % Modulation and add Gaussian noise
         [ seqAWGN ] = ...
             BPSKAndAddNoise( puncturedCode, EbN0, codeRateForAWGN );
-        [ seqAWGNForSourceDecoding ] = ...
-            BPSKAndAddNoise( bitSequence, EbN0, codeRate );
         % Initialization for iteration
         sourceLLR = zeros( 1, length(bitSequence)+ 4 );
         % Iterative decoding
@@ -53,13 +52,12 @@ for i = 1 : length(EbN0dB)
             else
                 % Bit-level VLC-APP Decoder
                 [ tempSourceLLR ] = ...
-                    BCJRDecoder( zeros(1, length(bitSequence)), ...
+                    BCJRDecoder( allZeroSeq, ...
                                         EbN0, deInterleavedChannelLLR );
                 % Remove the channelLLR before sending the sourceLLR to
                 % channel decoder
                 newSourceLLR = tempSourceLLR - deInterleavedChannelLLR;
                 % Interleaving
-                interleaveIndex = randperm(length(newSourceLLR));
                 interleavedSourceLLR = newSourceLLR(interleaveIndex);
                 % Additional bits for channel decoding
                 sourceLLR = ...
@@ -68,11 +66,11 @@ for i = 1 : length(EbN0dB)
         end
         % Bit-level VLC-APP Decoder
         [ SourceLLRForHardDecision ] = ...
-            BCJRDecoder( seqAWGNForSourceDecoding, ...
+            BCJRDecoder( allZeroSeq, ...
                         EbN0, deInterleavedChannelLLR );
         % Estimate the symbol sequence from bit sequence
-        bitSeq =  double(SourceLLRForHardDecision < 0);
-        [ symbolSeq ] = seqEstimation( bitSeq );
+        decodedBitSeq =  double(SourceLLRForHardDecision < 0);
+        [ symbolSeq ] = seqEstimation( decodedBitSeq );
         if length(symbolSeq) == length(source(j, :))
             if xor(symbolSeq, source(j, :)) == 0
                 continue;
